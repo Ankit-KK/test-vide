@@ -23,7 +23,7 @@
 <!-- ================= NAV ================= -->
 <header class="topbar">
   <div class="brand">
-    <span class="brand-mark">⌁</span>
+    <span class="brand-mark"></span>
     <span class="brand-name">VOID87</span>
   </div>
   <div class="topbar-right">
@@ -35,7 +35,6 @@
 <div class="stage-fixed">
 
   <div class="visual-frame">
-    <!-- CHANGED: Using canvas instead of img for zero-flicker frame sequencing -->
     <canvas id="seqCanvas" aria-label="Exploded view of mechanical keyboard"></canvas>
     <div class="vignette"></div>
   </div>
@@ -52,43 +51,51 @@
   </div>
 
   <div class="beats" id="beats">
+    
+    <!-- BEAT 0: FRAME 1 (Assembled) - Left aligned -->
     <div class="beat" data-beat="0">
       <p class="eyebrow">00 — ASSEMBLED</p>
       <h1 class="panel-title hero-title">Every key<br>hides a system.</h1>
       <p class="panel-body">This is VOID87 fully built — a tenkeyless mechanical board doing what keyboards do, sitting quiet on the desk. Underneath the matte black shell is a five-layer stack tuned for speed, sound, and feel. Scroll, and we'll take it apart in front of you.</p>
     </div>
 
-    <div class="beat" data-beat="1">
+    <!-- BEAT 1: FRAMES 2-3 (Keycaps) - Right aligned (keycaps pop on left) -->
+    <div class="beat beat--right" data-beat="1">
       <p class="eyebrow">01 — KEYCAPS</p>
       <h2 class="panel-title">Caps off first.</h2>
       <p class="panel-body">Doubleshot PBT keycaps, shine-through legends. Thin walls at the top, thick at the stem — the geometry that keeps a five-year-old keycap sounding like a new one. Lift them and the board's actual personality shows up underneath.</p>
     </div>
 
+    <!-- BEAT 2: FRAMES 4-5 (Switches) - Left aligned (explosion on right) -->
     <div class="beat" data-beat="2">
       <p class="eyebrow">02 — SWITCHES</p>
       <h2 class="panel-title">One board,<br>a full spectrum.</h2>
       <p class="panel-body">Sixteen million colors per switch, individually addressable — not a single backlight bar, eighty‑seven independent ones. Each housing is hot-swappable: pull a switch with the included tool, push in another, no soldering, no waiting.</p>
     </div>
 
+    <!-- BEAT 3: FRAMES 6-7 (Plate) - Left aligned -->
     <div class="beat" data-beat="3">
       <p class="eyebrow">03 — PLATE</p>
       <h2 class="panel-title">The plate sets<br>the feel.</h2>
       <p class="panel-body">A CNC-cut aluminum switch plate locates every switch with zero play, then passes vibration straight down into foam instead of letting it ring through the case. This is the difference between "clacky" and "controlled."</p>
     </div>
 
-    <div class="beat" data-beat="4">
+    <!-- BEAT 4: FRAMES 8-9 (PCB) - Right aligned (alternating rhythm) -->
+    <div class="beat beat--right" data-beat="4">
       <p class="eyebrow">04 — PCB &amp; DAMPENING</p>
       <h2 class="panel-title">Silence,<br>engineered in.</h2>
       <p class="panel-body">A hotswap PCB with per-switch LED drivers sits on two layers of acoustic foam. The foam kills hollow PCB ping and case resonance before sound ever leaves the chassis — most of what you "hear" in a keyboard is actually decided here.</p>
     </div>
 
+    <!-- BEAT 5: FRAME 10 (Chassis) - Left aligned -->
     <div class="beat" data-beat="5">
       <p class="eyebrow">05 — CHASSIS</p>
       <h2 class="panel-title">Down to<br>the bones.</h2>
       <p class="panel-body">A gasket-mounted bottom case with a built-in level vial — because a keyboard that isn't sitting flat is a keyboard typing slightly wrong. Five adjustable feet, weighted base, zero desk-walk during a ranked match or a deadline sprint.</p>
     </div>
 
-    <div class="beat beat-final" data-beat="6">
+    <!-- BEAT 6: FINAL (Reassembled) - Center aligned -->
+    <div class="beat beat--center beat-final" data-beat="6">
       <p class="eyebrow">REASSEMBLED</p>
       <h2 class="panel-title">Built to be<br>opened again.</h2>
       <p class="panel-body">Every layer you just saw is meant to come apart with a stock tool, not a warranty void sticker. Swap switches, swap caps, re-lube the stabilizers in a year — VOID87 stays serviceable for as long as you want to keep typing on it.</p>
@@ -98,6 +105,7 @@
         <div class="spec"><span class="spec-num">16M</span><span class="spec-label">colors / key</span></div>
       </div>
     </div>
+
   </div>
 
   <nav class="beat-dots" id="beatDots" aria-label="Jump to section"></nav>
