@@ -1,20 +1,33 @@
 gsap.registerPlugin(ScrollTrigger);
 
 /* ===================================================================
-   1. PRELOAD FRAME SEQUENCE
+   1. BUILD + PRELOAD STACKED FRAME LAYERS
+   One <img> per source frame, all absolutely stacked on top of each
+   other. Scrubbing crossfades opacity between the two layers that
+   straddle the current scroll position — this is what makes the
+   motion feel continuous instead of a hard jump-cut every frame.
    =================================================================== */
 const TOTAL_FRAMES = 11;
 const TOTAL_BEATS   = 7; // 00 assembled ... 06 reassembled
 const framePath = (i) => `assets/frames/frame_${String(i).padStart(2,'0')}.jpg`;
 
+const frameLayers = []; // 1-indexed, frameLayers[1..11]
 let loadedCount = 0;
 
-function preloadFrames(onDone){
+function buildFrameLayers(container, onDone){
+  const vignette = container.querySelector('.vignette');
   for(let i = 1; i <= TOTAL_FRAMES; i++){
-    const img = new Image();
-    img.src = framePath(i);
+    const img = document.createElement('img');
+    img.className = 'frame-layer' + (i === 1 ? ' is-base' : '');
+    img.alt = i === 1 ? 'Exploded view of mechanical keyboard' : '';
+    img.decoding = 'async';
+    img.loading = 'eager';
+    container.insertBefore(img, vignette);
+    frameLayers[i] = img;
+
     img.onload = settle;
     img.onerror = settle;
+    img.src = framePath(i);
   }
   function settle(){
     loadedCount++;
@@ -25,10 +38,12 @@ function preloadFrames(onDone){
 /* ===================================================================
    2. WIRE UP ONCE LOADED
    =================================================================== */
-preloadFrames(init);
+document.addEventListener('DOMContentLoaded', () => {
+  const visualFrame = document.getElementById('visualFrame');
+  buildFrameLayers(visualFrame, init);
+});
 
 function init(){
-  const seqImg    = document.getElementById('seqImg');
   const layerNum  = document.getElementById('layerNum');
   const railFill  = document.getElementById('railFill');
   const railDot   = document.getElementById('railDot');
@@ -37,11 +52,7 @@ function init(){
   const dotsWrap  = document.getElementById('beatDots');
   const beats     = gsap.utils.toArray('.beat');
 
-  /* -------------------------------------------------------------
-     Master scroll-driven trigger is created first so dot-nav
-     clicks (defined below) can read its start/end pixel bounds.
-  --------------------------------------------------------------*/
-  let masterST; // assigned below
+  let masterST;
 
   function goToProgress(p){
     const y = masterST.start + (masterST.end - masterST.start) * p;
@@ -49,16 +60,13 @@ function init(){
   }
 
   /* -------------------------------------------------------------
-     Build dot navigation, one per beat, click jumps to that
-     section's scroll position.
+     Dot navigation — one per beat, click jumps to that section.
   --------------------------------------------------------------*/
   beats.forEach((beat, i) => {
     const dot = document.createElement('button');
     dot.className = 'beat-dot';
     dot.setAttribute('aria-label', 'Jump to section ' + (i + 1));
-    dot.addEventListener('click', () => {
-      goToProgress(i / (TOTAL_BEATS - 1));
-    });
+    dot.addEventListener('click', () => goToProgress(i / (TOTAL_BEATS - 1)));
     dotsWrap.appendChild(dot);
   });
   const dotEls = gsap.utils.toArray('.beat-dot');
@@ -73,21 +81,43 @@ function init(){
     return 5;
   }
 
-  const frameState = { f: 1 };
   let renderQueued = false;
+  let pendingPos = 1;
+  let lastLowFrame = 1;
   let currentBeat = -1;
 
-  function renderFrame(fNum){
-    const clamped = Math.min(TOTAL_FRAMES, Math.max(1, Math.round(fNum)));
-    seqImg.src = framePath(clamped);
-    layerNum.textContent = String(frameToLayer(clamped)).padStart(2, '0');
+  /* -------------------------------------------------------------
+     Crossfade core: `pos` is a fractional frame position, e.g.
+     4.35 means 35% of the way between frame 4 and frame 5.
+     We fade frame 4 out and frame 5 in by that exact amount, and
+     hard-hide every other layer so only two are ever visible.
+  --------------------------------------------------------------*/
+  function renderPosition(pos){
+    const clampedPos = Math.min(TOTAL_FRAMES, Math.max(1, pos));
+    const low  = Math.min(TOTAL_FRAMES - 1, Math.floor(clampedPos));
+    const high = Math.min(TOTAL_FRAMES, low + 1);
+    const t    = clampedPos - low; // 0..1 blend between low and high
+
+    for(let i = 1; i <= TOTAL_FRAMES; i++){
+      const layer = frameLayers[i];
+      if(i === low)       layer.style.opacity = String(1 - t);
+      else if(i === high) layer.style.opacity = String(t);
+      else                 layer.style.opacity = '0';
+    }
+
+    const roundedFrame = t < 0.5 ? low : high;
+    if(roundedFrame !== lastLowFrame){
+      lastLowFrame = roundedFrame;
+      layerNum.textContent = String(frameToLayer(roundedFrame)).padStart(2, '0');
+    }
   }
 
-  function queueRender(){
+  function queueRender(pos){
+    pendingPos = pos;
     if(renderQueued) return;
     renderQueued = true;
     requestAnimationFrame(() => {
-      renderFrame(frameState.f);
+      renderPosition(pendingPos);
       renderQueued = false;
     });
   }
@@ -112,54 +142,6 @@ function init(){
   }
 
   /* -------------------------------------------------------------
-     Master scroll-driven timeline. The visible stage is `position:
-     fixed` and never moves — #scrollSpacer below it just supplies
-     scrollable distance. Scroll progress (0-1) drives:
-       - which of the 11 source frames is shown
-       - which text beat is faded in
-       - the rainbow rail fill
-  --------------------------------------------------------------*/
-  masterST = ScrollTrigger.create({
-    trigger: spacer,
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: 0.5,
-    onUpdate: (self) => {
-      const p = self.progress;
-
-      frameState.f = 1 + p * (TOTAL_FRAMES - 1);
-      queueRender();
-
-      const beatIdx = Math.min(TOTAL_BEATS - 1, Math.floor(p * TOTAL_BEATS));
-      setActiveBeat(beatIdx);
-
-      railFill.style.height = (p * 100) + '%';
-      railDot.style.top = (p * 100) + '%';
-
-      if(p > 0.015){
-        scrubHint.style.opacity = '0';
-      } else {
-        scrubHint.style.opacity = '';
-      }
-    }
-  });
-
-  // show beat 0 immediately on load
-  setActiveBeat(0);
-
-  ScrollTrigger.refresh();
-}
-
-/* ===================================================================
-   3. NAV BRAND SUBTLE HOVER
-   =================================================================== */
-document.addEventListener('DOMContentLoaded', () => {
-  const mark = document.querySelector('.brand-mark');
-  if(!mark) return;
-  mark.addEventListener('mouseenter', () => {
-    gsap.to(mark, { rotate: 180, duration: 0.5, ease: 'power2.out' });
-  });
-  mark.addEventListener('mouseleave', () => {
-    gsap.to(mark, { rotate: 0, duration: 0.5, ease: 'power2.out' });
-  });
-});
+     Master scroll-driven trigger. `scrub` is a smoothing time in
+     seconds — ScrollTrigger interpolates progress itself, so by
+     the time onUpdate fires, p is already eased
