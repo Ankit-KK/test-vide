@@ -124,11 +124,18 @@ a{ color:inherit; text-decoration:none; }
   height:100%;
 }
 
-#seqImg{
+.frame-layer{
+  position:absolute;
+  inset:0;
   width:100%; height:100%;
   object-fit:cover;
   display:block;
-  will-change:contents;
+  opacity:0;
+  will-change:opacity;
+  backface-visibility:hidden;
+}
+.frame-layer.is-base{
+  opacity:1; /* frame 1 starts fully visible */
 }
 
 .vignette{
@@ -143,7 +150,7 @@ a{ color:inherit; text-decoration:none; }
 #scrollSpacer{
   position:relative;
   width:100%;
-  height:800vh; /* total "scroll runway" for the whole experience */
+  height:500vh; /* total "scroll runway" for the whole experience */
   z-index:-1;
 }
 
