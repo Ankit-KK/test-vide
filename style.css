@@ -1,11 +1,5 @@
 /* ============================================================
    VOID87 — design tokens
-   Color:  #0a0a0a void · #f5f0e8 ivory · #100f0d panel
-           rainbow pulled directly from the switch housings:
-           #ff3b30 red · #ff9500 orange · #ffd23f yellow ·
-           #34c759 green · #32a3ff blue · #af52de violet
-   Type:   JetBrains Mono — labels / data / legends (keycap voice)
-           Inter — headlines & body (display voice)
    ============================================================ */
 
 :root{
@@ -47,7 +41,6 @@ body{
 }
 
 ::selection{ background:var(--c-orange); color:var(--void); }
-
 a{ color:inherit; text-decoration:none; }
 
 /* ---------------- film grain overlay ---------------- */
@@ -57,7 +50,7 @@ a{ color:inherit; text-decoration:none; }
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------------- progress rail (signature element) ---------------- */
+/* ---------------- progress rail ---------------- */
 .rail{
   position:fixed;
   top:50%; right:28px;
@@ -107,7 +100,7 @@ a{ color:inherit; text-decoration:none; }
   .topbar-tag{ display:none; }
 }
 
-/* ---------------- fixed stage — this never moves ---------------- */
+/* ---------------- fixed stage ---------------- */
 .stage-fixed{
   position:fixed;
   inset:0;
@@ -124,18 +117,11 @@ a{ color:inherit; text-decoration:none; }
   height:100%;
 }
 
-.frame-layer{
-  position:absolute;
-  inset:0;
-  width:100%; height:100%;
-  object-fit:cover;
+/* CHANGED: Canvas styling */
+#seqCanvas{
+  width:100%; 
+  height:100%;
   display:block;
-  opacity:0;
-  will-change:opacity;
-  backface-visibility:hidden;
-}
-.frame-layer.is-base{
-  opacity:1; /* frame 1 starts fully visible */
 }
 
 .vignette{
@@ -146,15 +132,14 @@ a{ color:inherit; text-decoration:none; }
   pointer-events:none;
 }
 
-/* invisible scroll spacer — generates scroll distance only, never rendered */
 #scrollSpacer{
   position:relative;
   width:100%;
-  height:500vh; /* total "scroll runway" for the whole experience */
+  height:800vh; 
   z-index:-1;
 }
 
-/* ---------------- frame tag + hint, fixed in the stage ---------------- */
+/* ---------------- frame tag + hint ---------------- */
 .frame-tag{
   position:absolute; top:90px; left:32px;
   display:flex; align-items:baseline; gap:6px;
@@ -184,7 +169,7 @@ a{ color:inherit; text-decoration:none; }
 @keyframes hintPulse{ 0%,100%{opacity:0.5;} 50%{opacity:1;} }
 @keyframes hintBounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(4px); } }
 
-/* ---------------- text beats — cross-fade in place, no movement ---------------- */
+/* ---------------- text beats ---------------- */
 .beats{
   position:absolute;
   inset:0;
@@ -259,7 +244,7 @@ a{ color:inherit; text-decoration:none; }
   color:var(--ivory-dim);
 }
 
-/* ---------------- beat dot navigation — click to jump ---------------- */
+/* ---------------- beat dot navigation ---------------- */
 .beat-dots{
   position:absolute;
   left:clamp(24px, 6vw, 96px);
@@ -319,7 +304,6 @@ a{ color:inherit; text-decoration:none; }
   .panel-body{ font-size:0.94rem; }
 }
 
-/* ---------------- reduced motion ---------------- */
 @media (prefers-reduced-motion: reduce){
   .scrub-hint, .scrub-hint svg{ animation:none; }
 }
