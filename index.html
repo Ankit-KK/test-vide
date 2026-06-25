@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<!-- progress rainbow rail, fed by the keyboard's own switch colors -->
+<!-- progress rainbow rail -->
 <div class="rail" aria-hidden="true">
   <div class="rail-track"></div>
   <div class="rail-fill" id="railFill"></div>
@@ -31,10 +31,12 @@
   </div>
 </header>
 
-<!-- ================= FIXED STAGE — nothing here physically scrolls ================= -->
+<!-- ================= FIXED STAGE ================= -->
 <div class="stage-fixed">
 
-  <div class="visual-frame" id="visualFrame">
+  <div class="visual-frame">
+    <!-- CHANGED: Using canvas instead of img for zero-flicker frame sequencing -->
+    <canvas id="seqCanvas" aria-label="Exploded view of mechanical keyboard"></canvas>
     <div class="vignette"></div>
   </div>
 
@@ -49,9 +51,7 @@
     <svg width="14" height="20" viewBox="0 0 14 20" fill="none"><path d="M7 1V19M7 19L1 13M7 19L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 
-  <!-- text beats, cross-fade in place, never move the page -->
   <div class="beats" id="beats">
-
     <div class="beat" data-beat="0">
       <p class="eyebrow">00 — ASSEMBLED</p>
       <h1 class="panel-title hero-title">Every key<br>hides a system.</h1>
@@ -98,10 +98,8 @@
         <div class="spec"><span class="spec-num">16M</span><span class="spec-label">colors / key</span></div>
       </div>
     </div>
-
   </div>
 
-  <!-- dot rail to jump between beats -->
   <nav class="beat-dots" id="beatDots" aria-label="Jump to section"></nav>
 
   <div class="footer-fixed">
@@ -111,8 +109,6 @@
 
 </div>
 
-<!-- invisible spacer: its only job is to give the page scrollable height
-     so ScrollTrigger has distance to read progress from. It is never seen. -->
 <div id="scrollSpacer" aria-hidden="true"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
